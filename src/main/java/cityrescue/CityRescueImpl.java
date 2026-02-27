@@ -1,5 +1,7 @@
 package cityrescue;
 
+import javax.naming.InvalidNameException;
+
 import cityrescue.enums.*;
 import cityrescue.exceptions.*;
 
@@ -43,9 +45,9 @@ public class CityRescueImpl implements CityRescue {
         this.units = new Unit[max_units];
         this.incidents = new Incident[max_incidents];
         // setup counters
-        this.nextStation = 1;
-        this.nextUnit = 1;
-        this.nextIncident = 1;
+        this.nextStation = 0;
+        this.nextUnit = 0;
+        this.nextIncident = 0;
         this.ticks = 0;
 
     }
@@ -73,8 +75,13 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
-        // TODO: create station and add to array with new ID
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (map.isOutOfBounds(x, y)) throw new InvalidLocationException("X and Y coordinates are not in the bounds.");
+        if (map.isBlocked(x, y)) throw new InvalidLocationException("That coordinate is blocked.");
+        if (name.isBlank()) throw new InvalidNameException("Name cannot be empty.");
+
+        int id = nextStation++; // id points to next array index linearly
+        stations[id] = new Station(id, name, x, y); // adds station to array
+        return id;
     }
 
     @Override
@@ -92,14 +99,21 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void setStationCapacity(int stationId, int maxUnits) throws IDNotRecognisedException, InvalidCapacityException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        Station building = stations[stationId];
+
+        if (maxUnits < 0) throw new InvalidCapacityException("Capacity must be positive.");
+        if (maxUnits < building.units) throw new InvalidCapacityException("Cannot be less than current unit count");
+        
+        building.capacity = maxUnits;
     }
 
     @Override
     public int[] getStationIds() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        int[] result = new int[20]; // because max stations is 20
+        for (int i = 0; i <= stations.length; i++) {
+            result[i] = stations[i].get_station_id();
+        }
+        return result;
     }
 
     @Override

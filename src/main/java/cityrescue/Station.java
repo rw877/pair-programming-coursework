@@ -4,9 +4,13 @@ public class Station {
     private String name;
     private int x_coordinate;
     private int y_coordinate;
+    private int id;
+    public int capacity;
+    public int units;
 
     private int station_id;
-    public Station(String name_in, int x_in, int y_in) {
+    public Station(int id, String name_in, int x_in, int y_in) {
+        this.id = id;
         this.name = name_in;
         this.x_coordinate = x_in;
         this.y_coordinate = y_in;
