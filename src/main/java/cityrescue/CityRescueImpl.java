@@ -57,26 +57,37 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void addObstacle(int x, int y) throws InvalidLocationException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (map.isOutOfBounds(x, y)) {
+            throw new InvalidLocationException("X and/or y is out of bounds.");
+        }
+        map.setObstacle(x, y, true);
     }
 
     @Override
     public void removeObstacle(int x, int y) throws InvalidLocationException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (map.isOutOfBounds(x, y)) {
+            throw new InvalidLocationException("X and/or y is out of bounds.");
+        }
+        map.setObstacle(x, y, false);
     }
 
     @Override
     public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
-        // TODO: implement
+        // TODO: create station and add to array with new ID
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        // TODO: add IllegalStateException
+        boolean id_recognised = false;
+        // Loops through array and shifts following elements to fill space of removing ID.
+        for (int i = 0; i < stations.length; i++) {
+            if (stations[i].get_station_id() == stationId) {id_recognised = true;}
+            if (id_recognised) {stations[i - 1] = stations[i];}
+        }
+        if (!id_recognised) {throw new IDNotRecognisedException("Station ID not found.");}
+
     }
 
     @Override
