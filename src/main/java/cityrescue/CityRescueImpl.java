@@ -292,29 +292,30 @@ public class CityRescueImpl implements CityRescue {
     }
 
     @Override
-    // Tick updates movements, arrivals, on-scene, resolution.
+    // Tick updates movements with manhattan rule, arrivals, on-scene, resolution.
     public void tick() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        // TODO: Add case for arrivals, check on scene to update, resolve issues
+        for (int i = 0; i < units.length; i++) {
+            units[i].make_move();
+        }
+        ticks ++;
     }
 
     @Override
-    // TODO: Add variables for status, add status methods to Unit and Incident classes.
     // Returns specifically formatted string as report of ticks, incidents and units.
     public String getStatus() {
         String status_report = "";
         status_report += String.format("TICK=%d\nSTATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d\n", ticks,
                 stations.length, units.length, incidents.length, obstacles.length);
         status_report += "INCIDENTS\n";
-        // Loop adds formatted status of all the incidents.
+        // Loop adds from class status method for all the incidents.
         for (int i = 0; i < incidents.length; i++) {
-            status_report += String.format("I#%d TYPE=%S SEV=%d LOC=(%d, %d) STATUS=%S UNIT=%d");
+            status_report += incidents[i].getStatus();
         }
         status_report += "UNITS\n";
-        // Loop adds formatted status of all the units.
+        // Loop adds from class status method for all the units.
         for (int i = 0; i < units.length; i++) {
-            // TODO: Check condition for if working on scene to include number
-            status_report += String.format("U#%d TYPE=%S HOME=%d LOC=(%d, %d) STATUS=%S UNIT=%d");
+            status_report += units[i].getStatus();
         }
         return status_report;
     }

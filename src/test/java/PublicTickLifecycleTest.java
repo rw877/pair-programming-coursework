@@ -30,4 +30,16 @@ public class PublicTickLifecycleTest {
         assertTrue(cr.viewIncident(i).contains("STATUS=RESOLVED"));
         assertTrue(cr.viewUnit(u).contains("STATUS=IDLE"));
     }
+
+    // Test unit and incident creation, initialise, getStatus, base case for tick cycle.
+    @Test
+    void move_tick_one_cycle() throws Exception {
+        int station_id = cr.addStation("A", 0, 0);
+        int unit_id = cr.addUnit(station_id, UnitType.AMBULANCE);
+
+        int i = cr.reportIncident(IncidentType.MEDICAL, 1, 0, 1);
+        cr.dispatch();
+
+        cr.tick();
+    }
 }
