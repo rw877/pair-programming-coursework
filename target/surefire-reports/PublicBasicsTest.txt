@@ -1,24 +1,24 @@
 -------------------------------------------------------------------------------
 Test set: PublicBasicsTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 1, Errors: 2, Skipped: 0, Time elapsed: 0.127 s <<< FAILURE! -- in PublicBasicsTest
-PublicBasicsTest.addObstacle_outOfBounds_throws_andStateUnchanged -- Time elapsed: 0.079 s <<< ERROR!
+Tests run: 3, Failures: 1, Errors: 2, Skipped: 0, Time elapsed: 0.061 s <<< FAILURE! -- in PublicBasicsTest
+PublicBasicsTest.addObstacle_outOfBounds_throws_andStateUnchanged -- Time elapsed: 0.029 s <<< ERROR!
 java.lang.UnsupportedOperationException: Not implemented yet
-	at cityrescue.CityRescueImpl.getStatus(CityRescueImpl.java:199)
+	at cityrescue.CityRescueImpl.getStatus(CityRescueImpl.java:287)
 	at PublicBasicsTest.addObstacle_outOfBounds_throws_andStateUnchanged(PublicBasicsTest.java:34)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 
-PublicBasicsTest.initialise_setsGridSize_andResetsTick -- Time elapsed: 0.008 s <<< ERROR!
+PublicBasicsTest.initialise_setsGridSize_andResetsTick -- Time elapsed: 0.007 s <<< ERROR!
 java.lang.UnsupportedOperationException: Not implemented yet
-	at cityrescue.CityRescueImpl.getStatus(CityRescueImpl.java:199)
+	at cityrescue.CityRescueImpl.getStatus(CityRescueImpl.java:287)
 	at PublicBasicsTest.initialise_setsGridSize_andResetsTick(PublicBasicsTest.java:21)
 	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
 
-PublicBasicsTest.addStation_assignsIdStartingAt1 -- Time elapsed: 0.005 s <<< FAILURE!
+PublicBasicsTest.addStation_assignsIdStartingAt1 -- Time elapsed: 0.003 s <<< FAILURE!
 org.opentest4j.AssertionFailedError: expected: <1> but was: <0>
 	at org.junit.jupiter.api.AssertionFailureBuilder.build(AssertionFailureBuilder.java:151)
 	at org.junit.jupiter.api.AssertionFailureBuilder.buildAndThrow(AssertionFailureBuilder.java:132)

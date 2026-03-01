@@ -21,6 +21,10 @@ public abstract class Unit {
         this.status = UnitStatus.IDLE;
     }
 
+    public int get_unit_id() {
+        return unitId;
+    }
+
     // compulsury abstract methods for 2.2 polymorphism
     public abstract boolean canHandle(IncidentType type);
     public abstract int getTicksToResolve(int severity);
