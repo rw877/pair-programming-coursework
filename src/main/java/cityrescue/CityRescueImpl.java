@@ -1,6 +1,5 @@
 package cityrescue;
 
-import javax.naming.InvalidNameException;
 
 import cityrescue.enums.*;
 import cityrescue.exceptions.*;
@@ -79,9 +78,9 @@ public class CityRescueImpl implements CityRescue {
         if (map.isBlocked(x, y)) throw new InvalidLocationException("That coordinate is blocked.");
         if (name.isBlank()) throw new InvalidNameException("Name cannot be empty.");
 
-        int id = nextStation++; // id points to next array index linearly
-        stations[id] = new Station(id, name, x, y); // adds station to array
-        return id;
+        int stationId = nextStation++; // id points to next array index linearly
+        stations[stationId] = new Station(stationId, name, x, y); // adds station to array
+        return stationId;
     }
 
     @Override
@@ -118,8 +117,28 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int addUnit(int stationId, UnitType type) throws IDNotRecognisedException, InvalidUnitException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (stationId < 1 || stationId >= 21 || stations[stationId] == null) throw new IDNotRecognisedException("That is not a valid ID");
+        if (type == null) throw new InvalidUnitException("Cannot be null type.");
+
+        Station building = stations[stationId]; //lookup station
+        if (building.units >= building.capacity) throw new IllegalStateException("Station is full already.");
+        if (nextUnit > max_units) throw new IllegalStateException("This station has max units.");
+
+        int unitId = nextUnit++;
+        int x = building.get_x_coordinate();
+        int y = building.get_y_coordinate(); // creates the new unit at stations coordinates
+
+        //nice example of polymorphism
+        if (type == UnitType.AMBULANCE){
+            units[unitId] = new Ambulance(unitId, stationId, x, y);
+        } else if (type == UnitType.POLICE_CAR) {
+            units[unitId] = new PoliceCar(unitId, stationId, x, y);
+        } else { // must be fire engine based on enums
+            units[unitId] = new FireEngine(unitId, stationId, x, y);
+        }
+
+        building.units++; //update station building to have new unit
+        return unitId;
     }
 
     @Override
