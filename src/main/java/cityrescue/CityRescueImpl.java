@@ -294,7 +294,9 @@ public class CityRescueImpl implements CityRescue {
     public void tick() {
         // TODO: Add case for arrivals, check on scene to update, resolve issues
         // TODO: Call helper methods
-
+        for (int i = 0; i < units.length; i++) {
+            units[i].unit_tick();
+        }
         ticks ++;
     }
 

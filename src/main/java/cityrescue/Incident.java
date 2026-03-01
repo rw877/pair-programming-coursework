@@ -24,6 +24,7 @@ public class Incident {
 
     }
 
+    // TODO: Change this to viewStatus in Impl
     public String getStatus() {
         return String.format("I#%d TYPE=%S SEV=%d LOC=(%d, %d) STATUS=%S UNIT=%d",
                 this.incidentId, this.type, this.severity, this.x, this.y, this.status, this.unit);
