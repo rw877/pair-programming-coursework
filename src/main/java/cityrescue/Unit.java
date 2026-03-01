@@ -9,16 +9,16 @@ public abstract class Unit {
     public int x;
     public int y;
     public int buildingId;
-    public UnitStatus status;
     public UnitType type;
+    public UnitStatus status;
 
-    public Unit(int unitId, int buildingId, int x, int y, UnitStatus status, UnitType type) {
+    public Unit(int unitId, int buildingId, int x, int y, UnitType type) {
         this.unitId = unitId;
         this.buildingId = buildingId;
         this.x = x;
         this.y = y;
-        this.status = status;
         this.type = type;
+        this.status = UnitStatus.IDLE;
     }
 
     // compulsury abstract methods for 2.2 polymorphism
