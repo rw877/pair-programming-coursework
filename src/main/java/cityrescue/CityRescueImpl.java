@@ -26,8 +26,6 @@ public class CityRescueImpl implements CityRescue {
     private Unit[] units;
     private Incident[] incidents;
 
-    private int[] obstacles;
-
     // counters
     private int nextStation = 1;
     private int nextUnit = 1;
@@ -45,9 +43,9 @@ public class CityRescueImpl implements CityRescue {
         this.units = new Unit[max_units];
         this.incidents = new Incident[max_incidents];
         // setup counters
-        this.nextStation = 0;
-        this.nextUnit = 0;
-        this.nextIncident = 0;
+        this.nextStation = 1;
+        this.nextUnit = 1;
+        this.nextIncident = 1;
         this.ticks = 0;
 
     }
@@ -295,9 +293,8 @@ public class CityRescueImpl implements CityRescue {
     // Tick updates movements with manhattan rule, arrivals, on-scene, resolution.
     public void tick() {
         // TODO: Add case for arrivals, check on scene to update, resolve issues
-        for (int i = 0; i < units.length; i++) {
-            units[i].make_move();
-        }
+        // TODO: Call helper methods
+
         ticks ++;
     }
 
@@ -305,16 +302,17 @@ public class CityRescueImpl implements CityRescue {
     // Returns specifically formatted string as report of ticks, incidents and units.
     public String getStatus() {
         String status_report = "";
+        // TODO: Method to count obstacles in map class
         status_report += String.format("TICK=%d\nSTATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d\n", ticks,
-                stations.length, units.length, incidents.length, obstacles.length);
+                stations.length, units.length, incidents.length, 0);
         status_report += "INCIDENTS\n";
         // Loop adds from class status method for all the incidents.
-        for (int i = 0; i < incidents.length; i++) {
+        for (int i = 1; i < nextIncident; i++) {
             status_report += incidents[i].getStatus();
         }
         status_report += "UNITS\n";
         // Loop adds from class status method for all the units.
-        for (int i = 0; i < units.length; i++) {
+        for (int i = 1; i < nextUnit; i++) {
             status_report += units[i].getStatus();
         }
         return status_report;

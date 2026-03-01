@@ -8,11 +8,15 @@ public class Station {
     public int units;
     private int stationId;
 
+    final int CAPACITY = 10;
+
     public Station(int stationId, String name_in, int x_in, int y_in) {
         this.stationId = stationId;
         this.name = name_in;
         this.x_coordinate = x_in;
         this.y_coordinate = y_in;
+        // TODO: Add capacity to constructor or setter?
+        this.capacity = CAPACITY;
     }
 
     public int get_station_id() {

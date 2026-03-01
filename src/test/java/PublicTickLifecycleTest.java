@@ -33,13 +33,13 @@ public class PublicTickLifecycleTest {
 
     // Test unit and incident creation, initialise, getStatus, base case for tick cycle.
     @Test
-    void move_tick_one_cycle() throws Exception {
+    void move_one_tick() throws Exception {
         int station_id = cr.addStation("A", 0, 0);
-        int unit_id = cr.addUnit(station_id, UnitType.AMBULANCE);
+        int unit_id = cr.addUnit(station_id, UnitType.POLICE_CAR);
+        int incident_id = cr.reportIncident(IncidentType.CRIME, 1, 1, 1);
 
-        int i = cr.reportIncident(IncidentType.MEDICAL, 1, 0, 1);
-        cr.dispatch();
-
+        System.out.println(cr.getStatus());
+        // TODO: Implement dispatch to call for IDLE units.
         cr.tick();
     }
 }
