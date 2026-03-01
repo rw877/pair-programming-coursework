@@ -243,14 +243,28 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int reportIncident(IncidentType type, int severity, int x, int y) throws InvalidSeverityException, InvalidLocationException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        //exception checks
+        if (type == null) throw new IllegalArgumentException("Cannot be null");
+        if (severity < 1 || severity > 5) throw new InvalidSeverityException("Severity must be between 1-5");
+        if (map.isOutOfBounds(x, y)) throw new InvalidLocationException("Out of bounds");
+        if (map.isBlocked(x, y)) throw new InvalidLocationException("Location blocked");
+        
+        int incidentId = nextIncident++;
+        incidents[incidentId] = new Incident(incidentId, type, severity, x, y); //incident object added to array
+        return incidentId;
     }
 
     @Override
     public void cancelIncident(int incidentId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (incidentId < 1 || incidentId >= incidents.length || incidents[incidentId] == null) throw new IDNotRecognisedException("Incident ID not found.");
+        
+        Incident incident = incidents[incidentId];
+        // check if incident is REPORTED or DISPATCHED only
+        if (incident.status != IncidentStatus.REPORTED && incident.status != IncidentStatus.DISPATCHED) {
+            throw new IllegalStateException("Cannot cancel an incident that is not REPORTED or DISPATCHED.");
+        }
+
+        //TODO: finish method
     }
 
     @Override
