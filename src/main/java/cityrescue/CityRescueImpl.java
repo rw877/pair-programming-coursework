@@ -1,7 +1,5 @@
 package cityrescue;
 
-import javax.naming.InvalidNameException;
-
 import cityrescue.enums.*;
 import cityrescue.exceptions.*;
 
