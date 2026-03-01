@@ -1,6 +1,5 @@
 package cityrescue;
 
-
 import cityrescue.enums.*;
 import cityrescue.exceptions.*;
 
