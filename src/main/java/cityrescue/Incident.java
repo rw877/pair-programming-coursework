@@ -11,7 +11,7 @@ public class Incident {
     private int y;
     private int severity;
     private int unit;
-    public IncidentStatus status; // examples of encapsulation
+    private IncidentStatus status;
 
     
     public Incident(int incidentId, IncidentType type, int severity, int x, int y) {
@@ -24,9 +24,8 @@ public class Incident {
 
     }
 
-    // TODO: Change this to viewStatus in Impl
-    public String getStatus() {
-        return String.format("I#%d TYPE=%S SEV=%d LOC=(%d, %d) STATUS=%S UNIT=%d",
-                this.incidentId, this.type, this.severity, this.x, this.y, this.status, this.unit);
-    }
+    // Getters for Incident.
+    public int getIncidentId() {return incidentId;}
+    public IncidentStatus getStatus() {return status;}
+    public IncidentType getType() {return type;}
 }

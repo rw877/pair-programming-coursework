@@ -155,10 +155,10 @@ public class CityRescueImpl implements CityRescue {
         
         Unit car = units[unitId];
         // is the unit busy check
-        if (car.status == UnitStatus.EN_ROUTE || car.status == UnitStatus.AT_SCENE) throw new IllegalStateException("Unit is currently EN_ROUTE or AT_SCENE.");
+        if (car.getStatus() == UnitStatus.EN_ROUTE || car.getStatus() == UnitStatus.AT_SCENE) throw new IllegalStateException("Unit is currently EN_ROUTE or AT_SCENE.");
 
         // lookup units station
-        Station station = stations[car.buildingId];
+        Station station = stations[car.getBuildingId()];
         if (station.units > 0) {
             station.units--; // remove one unit from stations unit count
         }
@@ -177,20 +177,20 @@ public class CityRescueImpl implements CityRescue {
         Station newStation = stations[newStationId]; //new station
 
         // IDLE unit check
-        if (car.status != UnitStatus.IDLE) throw new IllegalStateException("Unit must be in IDLE state.");
+        if (car.getStatus() != UnitStatus.IDLE) throw new IllegalStateException("Unit must be in IDLE state.");
         // space at destination check
         if (newStation.units >= newStation.capacity) throw new IllegalStateException("New station is at full.");
-        Station oldStation = stations[car.buildingId]; //original station
+        Station oldStation = stations[car.getBuildingId()]; //original station
         
         if (oldStation.units > 0) {
             oldStation.units--; // remove station
         }
 
         newStation.units++; // add unit to new station
-        car.buildingId = newStationId; //change units building
+        car.setBuildingId(newStationId); //change units building
         // change units location to new stations coordinates
-        car.x = newStation.get_x_coordinate();
-        car.y = newStation.get_y_coordinate(); 
+        car.setX(newStation.get_x_coordinate());
+        car.setY(newStation.get_y_coordinate());
     }
 
     @Override
@@ -200,11 +200,11 @@ public class CityRescueImpl implements CityRescue {
         Unit car = units[unitId];
 
         if (outOfService) { // boolean decides toggle of out of service
-            if (car.status != UnitStatus.IDLE) throw new IllegalStateException("Unit must be IDLE"); 
+            if (car.getStatus() != UnitStatus.IDLE) throw new IllegalStateException("Unit must be IDLE");
     
-            car.status = UnitStatus.OUT_OF_SERVICE; // outOfService = true hence unit is out service
+            car.setStatus(UnitStatus.OUT_OF_SERVICE); // outOfService = true hence unit is out service
         } else {
-            car.status = UnitStatus.IDLE; // outOfService = false hence unit is in service
+            car.setStatus(UnitStatus.IDLE); // outOfService = false hence unit is in service
         }
     }
 
@@ -228,15 +228,13 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public String viewUnit(int unitId) throws IDNotRecognisedException {
-        if (unitId < 1 || unitId >= units.length || units[unitId] == null) throw new IDNotRecognisedException("Unit ID doesnt exist.");
-        
-        Unit car = units[unitId];
+        if (unitId < 1 || unitId >= units.length || units[unitId] == null) throw new
+                IDNotRecognisedException("Unit ID does not exist.");
 
-        return "U#" + car.unitId + 
-               " TYPE=" + car.type + 
-               " HOME=" + car.buildingId + 
-               " LOC=(" + car.x + "," + car.y + ")" + 
-               " STATUS=" + car.status; // TODO: add incident and work values
+        Unit unit = units[unitId];
+
+        return String.format("U#%d TYPE=%S HOME=%d LOC=(%d, %d) STATUS=%S INCIDENT=%d",
+                unitId, unit.getType().toString(), 0,  unit.getX(), unit.getY(), unit.getStatus().toString(), unit.get_incident_id());
     }
 
     @Override
@@ -258,7 +256,7 @@ public class CityRescueImpl implements CityRescue {
         
         Incident incident = incidents[incidentId];
         // check if incident is REPORTED or DISPATCHED only
-        if (incident.status != IncidentStatus.REPORTED && incident.status != IncidentStatus.DISPATCHED) {
+        if (incident.getStatus() != IncidentStatus.REPORTED && incident.getStatus() != IncidentStatus.DISPATCHED) {
             throw new IllegalStateException("Cannot cancel an incident that is not REPORTED or DISPATCHED.");
         }
 
@@ -279,8 +277,9 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public String viewIncident(int incidentId) throws IDNotRecognisedException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        Incident incident = incidents[incidentId];
+        return String.format("I#%d TYPE=%S SEV=%d LOC=(%d, %d) STATUS=%S UNIT=%d",
+                incidentId, incident.getType(), incident.severity, incident.x, incident.y, incident.getStatus(), incident.unit);
     }
 
     @Override
@@ -292,8 +291,7 @@ public class CityRescueImpl implements CityRescue {
     @Override
     // Tick updates movements with manhattan rule, arrivals, on-scene, resolution.
     public void tick() {
-        // TODO: Add case for arrivals, check on scene to update, resolve issues
-        // TODO: Call helper methods
+        // Iterates through all units, method updates movements and status.
         for (int i = 0; i < units.length; i++) {
             units[i].unit_tick();
         }
@@ -310,12 +308,12 @@ public class CityRescueImpl implements CityRescue {
         status_report += "INCIDENTS\n";
         // Loop adds from class status method for all the incidents.
         for (int i = 1; i < nextIncident; i++) {
-            status_report += incidents[i].getStatus();
+            status_report += viewIncident(incidents[i].getIncidentId());
         }
         status_report += "UNITS\n";
         // Loop adds from class status method for all the units.
         for (int i = 1; i < nextUnit; i++) {
-            status_report += units[i].getStatus();
+            status_report += viewUnit(units[i].get_unit_id());
         }
         return status_report;
     }

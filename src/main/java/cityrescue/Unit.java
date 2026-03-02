@@ -9,14 +9,13 @@ public abstract class Unit {
 
     // Used to move units
     final int[][] MOVE_VECTORS = {{1, 0}, {0, 1}, {1, 0}, {0, -1}};
-    public int unitId;
-    public int x;
-    public int y;
-    public int buildingId;
+    private int unitId;
+    private int x;
+    private int y;
+    private int buildingId;
     private int incidentId;
-    public UnitType type;
-    public UnitStatus status;
-
+    private UnitType type;
+    private UnitStatus status;
     private int ticks_remaining_at_scene;
 
     public Unit(int unitId, int buildingId, int x, int y, UnitType type) {
@@ -26,10 +25,6 @@ public abstract class Unit {
         this.y = y;
         this.type = type;
         this.status = UnitStatus.IDLE;
-    }
-
-    public int get_unit_id() {
-        return unitId;
     }
 
     // Helper method for make_move calculates the manhattan distance between incident and unit.
@@ -44,7 +39,8 @@ public abstract class Unit {
         for (int i = 0; i < MOVE_VECTORS.length; i++) {
             int move_x = unit_coordinates[0] + MOVE_VECTORS[i][0];
             int move_y = unit_coordinates[1] + MOVE_VECTORS[i][1];
-            // TODO: Check for legal move OOB or obstacle.
+            // TODO: Use map to check for legal move OOB or obstacle.
+
             int move_distance = calculate_manhattan_distance(incident_coordinates, new int[] {move_x, move_y});
             if (move_distance < unit_distance) {x = move_x; y = move_y;}
         }
@@ -74,10 +70,23 @@ public abstract class Unit {
     public abstract boolean canHandle(IncidentType type);
     public abstract int getTicksToResolve(int severity);
 
-    public String getStatus() {
-        // TODO: Change this to viewStatus in Impl
-        // TODO: print '-' for no incident, add setter for incident id, implement home.
-        return String.format("U#%d TYPE=%S HOME=%d LOC=(%d, %d) STATUS=%S INCIDENT=%d",
-                this.unitId, this.type.toString(), 0,  this.x, this.y, this.status.toString(), this.incidentId);
+
+    // Getter methods for private variables.
+    public int get_unit_id() {
+        return unitId;
     }
+    public int get_incident_id() {return incidentId;}
+    public UnitStatus getStatus() {return status;}
+    public int getBuildingId() {return buildingId;}
+    public UnitType getType() {return type;}
+    public int getX() {return x;}
+    public int getY() {return y;}
+
+
+    // Setter methods for private variables.
+    public void setStatus(UnitStatus status_in) {status = status_in;}
+    public void setBuildingId(int new_id) {buildingId = new_id;}
+    public void setX(int x_in) {x = x_in;}
+    public void setY(int y_in) {y = y_in;}
+
 }
