@@ -5,7 +5,7 @@ public class Station {
     private int x_coordinate;
     private int y_coordinate;
     public int capacity;
-    public int units;
+    private int unit_count;
     private int stationId;
 
     final int CAPACITY = 10;
@@ -30,4 +30,7 @@ public class Station {
     public int get_y_coordinate() {
         return y_coordinate;
     }
+
+    public int getUnit_count() {return unit_count;}
+    public void setUnit_count(int new_count) {unit_count = new_count;}
 }

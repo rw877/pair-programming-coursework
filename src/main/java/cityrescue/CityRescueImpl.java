@@ -10,23 +10,20 @@ import cityrescue.exceptions.*;
  * You may add additional classes in any package(s) you like.
  */
 public class CityRescueImpl implements CityRescue {
-
-    // Added fields
-    // map
     private CityMap map;
     private int ticks = 0;
 
-    // storage limits
+    // Constant array size limits
     private static final int max_stations = 20;
     private static final int max_units = 50;
     private static final int max_incidents = 200;
 
-    // arrays
-    private Station[] stations;
-    private Unit[] units;
-    private Incident[] incidents;
+    // Arrays for each class
+    private static Station[] stations;
+    private static Unit[] units;
+    private static Incident[] incidents;
 
-    // counters
+    // Counters start from 1
     private int nextStation = 1;
     private int nextUnit = 1;
     private int nextIncident = 1;
@@ -47,7 +44,6 @@ public class CityRescueImpl implements CityRescue {
         this.nextUnit = 1;
         this.nextIncident = 1;
         this.ticks = 0;
-
     }
 
     @Override
@@ -83,6 +79,7 @@ public class CityRescueImpl implements CityRescue {
     }
 
     @Override
+    // TODO: add IllegalStateException if still owns units
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
         boolean id_recognised = false;
         // Loops through array and shifts following elements to fill space of removing ID.
@@ -91,7 +88,6 @@ public class CityRescueImpl implements CityRescue {
             if (id_recognised) {stations[i - 1] = stations[i];}
         }
         if (!id_recognised) {throw new IDNotRecognisedException("Station ID not found.");}
-
     }
 
     @Override
@@ -99,7 +95,7 @@ public class CityRescueImpl implements CityRescue {
         Station building = stations[stationId];
 
         if (maxUnits < 0) throw new InvalidCapacityException("Capacity must be positive.");
-        if (maxUnits < building.units) throw new InvalidCapacityException("Cannot be less than current unit count");
+        if (maxUnits < building.getUnit_count()) throw new InvalidCapacityException("Cannot be less than current unit count");
         
         building.capacity = maxUnits;
     }
@@ -127,7 +123,8 @@ public class CityRescueImpl implements CityRescue {
         if (type == null) throw new InvalidUnitException("Cannot be null type.");
 
         Station building = stations[stationId]; //lookup station
-        if (building.units >= building.capacity) throw new IllegalStateException("Station is full already.");
+        int unit_count = building.getUnit_count();
+        if (unit_count >= building.capacity) throw new IllegalStateException("Station is full already.");
         if (nextUnit > max_units) throw new IllegalStateException("This station has max units.");
 
         int unitId = nextUnit++;
@@ -143,7 +140,7 @@ public class CityRescueImpl implements CityRescue {
             units[unitId] = new FireEngine(unitId, stationId, x, y);
         }
 
-        building.units++; //update station building to have new unit
+        building.setUnit_count(unit_count + 1); //update station building to have new unit
         return unitId;
     }
 
@@ -158,8 +155,8 @@ public class CityRescueImpl implements CityRescue {
 
         // lookup units station
         Station station = stations[car.getBuildingId()];
-        if (station.units > 0) {
-            station.units--; // remove one unit from stations unit count
+        if (station.getUnit_count() > 0) {
+            station.setUnit_count(station.getUnit_count() - 1); // remove one unit from stations unit count
         }
 
         units[unitId] = null; // unit replaced with null therefore removed/decommissioned
@@ -178,14 +175,14 @@ public class CityRescueImpl implements CityRescue {
         // IDLE unit check
         if (car.getStatus() != UnitStatus.IDLE) throw new IllegalStateException("Unit must be in IDLE state.");
         // space at destination check
-        if (newStation.units >= newStation.capacity) throw new IllegalStateException("New station is at full.");
+        if (newStation.getUnit_count() >= newStation.capacity) throw new IllegalStateException("New station is at full.");
         Station oldStation = stations[car.getBuildingId()]; //original station
         
-        if (oldStation.units > 0) {
-            oldStation.units--; // remove station
+        if (oldStation.getUnit_count() > 0) {
+            oldStation.setUnit_count(oldStation.getUnit_count() - 1); // remove station
         }
 
-        newStation.units++; // add unit to new station
+        newStation.setUnit_count(newStation.getUnit_count() + 1); // add unit to new station
         car.setBuildingId(newStationId); //change units building
         // change units location to new stations coordinates
         car.setX(newStation.get_x_coordinate());
@@ -303,7 +300,7 @@ public class CityRescueImpl implements CityRescue {
         int eligible_count = 0;
         Unit[] eligible_units = new Unit[units.length];
 
-        for (int i = 0; i < nextUnit; i++) {
+        for (int i = 1; i < nextUnit; i++) {
             if (units[i].getStatus() == UnitStatus.IDLE) {
                 eligible_units[eligible_count] = units[i];
                 eligible_count ++;
@@ -336,7 +333,7 @@ public class CityRescueImpl implements CityRescue {
     // Tick updates movements with manhattan rule, arrivals, on-scene, resolution.
     public void tick() {
         // Iterates through all units, method updates movements and status.
-        for (int i = 0; i < units.length; i++) {
+        for (int i = 1; i < nextUnit; i++) {
             units[i].unit_tick();
         }
         dispatch();
@@ -351,17 +348,26 @@ public class CityRescueImpl implements CityRescue {
                 stations.length, units.length, incidents.length, map.countObstacles());
         status_report += "INCIDENTS\n";
         // Loop adds from class status method for all the incidents.
-        // TODO: Fix exception handling.
         for (int i = 1; i < nextIncident; i++) {
-            status_report += viewIncident(incidents[i].getIncidentId());
+            // Try catch block handles exception from viewIncident method without compromising the overridden class.
+            try {
+                status_report += viewIncident(incidents[i].getIncidentId());
+            } catch (IDNotRecognisedException e) {
+                e.printStackTrace();
+            }
         }
         status_report += "\nUNITS\n";
         // Loop adds from class status method for all the units.
         for (int i = 1; i < nextUnit; i++) {
-            status_report += viewUnit(units[i].get_unit_id());
+            // Try catch block handles exception from viewUnit method without compromising the overridden class.
+            try {
+                status_report += viewUnit(units[i].get_unit_id());
+            } catch (IDNotRecognisedException e) {
+                e.printStackTrace();
+            }
         }
         return status_report;
     }
 
-    public Incident[] getIncidents() {return incidents;}
+    public static Incident getIncident(int incident_id) {return incidents[incident_id];}
 }

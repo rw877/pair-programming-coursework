@@ -1,5 +1,6 @@
 package cityrescue;
 
+import cityrescue.enums.IncidentStatus;
 import cityrescue.enums.IncidentType;
 import cityrescue.enums.UnitType;
 import cityrescue.enums.UnitStatus;
@@ -7,7 +8,6 @@ import java.lang.Math;
 
 public abstract class Unit {
 
-    // Used to move units
     final int[][] MOVE_VECTORS = {{1, 0}, {0, 1}, {1, 0}, {0, -1}};
     private int unitId;
     private int x;
@@ -27,7 +27,7 @@ public abstract class Unit {
         this.status = UnitStatus.IDLE;
     }
 
-    // Helper method for make_move calculates the manhattan distance between incident and unit.
+    // Helper method for make_move returns the manhattan distance between incident and unit.
     public int calculate_manhattan_distance(int[] incident_coordinates, int[] unit_coordinates) {
         return Math.abs(incident_coordinates[0] - unit_coordinates[0]) +
                 Math.abs(incident_coordinates[1] - unit_coordinates[1]);
@@ -46,29 +46,31 @@ public abstract class Unit {
         }
     }
 
-    // Called by tick(), updates each unit based on status.
+    // Helper method called by tick(), updates each unit based on status.
     public void unit_tick() {
+        Incident incident = CityRescueImpl.getIncident(incidentId);
         switch (status) {
             case IDLE:
                 status = UnitStatus.EN_ROUTE;
                 break;
             case EN_ROUTE:
-                make_move(new int[] {}, new int[] {x, y});
-                // Uses getter and incidents to get x and y from incident ID.
-                Incident[] incident_array = CityRescueImpl.getIncidents();
-                Incident incident = incident_array[incidentId];
+                // Makes first legal move and then checks if it arrived at an incident space.
+                make_move(new int[] {incident.getX(), incident.getY()}, new int[] {x, y});
                 if (calculate_manhattan_distance(new int[] {incident.getX(), incident.getY()}, new int[] {x, y}) == 0) {
                     status = UnitStatus.AT_SCENE;
                 }
                 break;
             case AT_SCENE:
-                // TODO: Implement Resolve Incident.
+                // Reduces ticks and resolves if count drops to zero.
                 ticks_remaining_at_scene--;
-                if (ticks_remaining_at_scene == 0) {status = UnitStatus.IDLE;}
+                if (ticks_remaining_at_scene == 0) {
+                    status = UnitStatus.IDLE;
+                    incident.setStatus(IncidentStatus.RESOLVED);
+                }
         }
     }
 
-    // Compulsory abstract methods for section 2.2 polymorphism:
+    // These abstract classes differ between children and are overridden there.
     public abstract boolean canHandle(IncidentType type);
     public abstract int getTicksToResolve(int severity);
 
