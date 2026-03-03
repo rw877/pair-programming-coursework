@@ -10,7 +10,7 @@ public class Incident {
     private int x;
     private int y;
     private int severity;
-    private int unit;
+    private int unitId;
     private IncidentStatus status;
 
     
@@ -24,8 +24,18 @@ public class Incident {
 
     }
 
+    public void setStatus(IncidentStatus status_in) {status = status_in;}
+
     // Getters for Incident.
     public int getIncidentId() {return incidentId;}
+    public int getUnitId() {return unitId;}
     public IncidentStatus getStatus() {return status;}
     public IncidentType getType() {return type;}
+
+    public int getX() {return x;}
+    public int getY() {return y;}
+
+    public int getSeverity() {return severity;}
+
+    public void setSeverity(int severity_in) {severity = severity_in;}
 }

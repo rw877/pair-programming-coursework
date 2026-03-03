@@ -27,4 +27,14 @@ public class CityMap {
             obstacles[x][y] = blocked;
         }
     }
+    public int countObstacles() {
+        int obstacle_count = 0;
+        for (int i = 0; i < obstacles.length; i++) {
+            for (int j = 0; j < obstacles[i].length; j++) {
+                if (isBlocked(i, j)) obstacle_count++;
+            }
+        }
+        return obstacle_count;
+    }
+
 }

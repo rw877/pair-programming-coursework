@@ -49,17 +49,19 @@ public abstract class Unit {
     // Called by tick(), updates each unit based on status.
     public void unit_tick() {
         switch (status) {
-            case UnitStatus.IDLE:
-                // TODO: Implement and call dispatch.
-                CityRescueImpl.dispatch();
+            case IDLE:
                 status = UnitStatus.EN_ROUTE;
                 break;
-            case UnitStatus.EN_ROUTE:
+            case EN_ROUTE:
                 make_move(new int[] {}, new int[] {x, y});
-                // TODO: Use incident ID to get coords for manhattan distance.
-                if (calculate_manhattan_distance(new int[] {}, new int[] {x, y}) == 0) {status = UnitStatus.AT_SCENE;}
+                // Uses getter and incidents to get x and y from incident ID.
+                Incident[] incident_array = CityRescueImpl.getIncidents();
+                Incident incident = incident_array[incidentId];
+                if (calculate_manhattan_distance(new int[] {incident.getX(), incident.getY()}, new int[] {x, y}) == 0) {
+                    status = UnitStatus.AT_SCENE;
+                }
                 break;
-            case UnitStatus.AT_SCENE:
+            case AT_SCENE:
                 // TODO: Implement Resolve Incident.
                 ticks_remaining_at_scene--;
                 if (ticks_remaining_at_scene == 0) {status = UnitStatus.IDLE;}

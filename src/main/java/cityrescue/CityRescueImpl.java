@@ -84,7 +84,6 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
-        // TODO: add IllegalStateException
         boolean id_recognised = false;
         // Loops through array and shifts following elements to fill space of removing ID.
         for (int i = 0; i < stations.length; i++) {
@@ -163,7 +162,7 @@ public class CityRescueImpl implements CityRescue {
             station.units--; // remove one unit from stations unit count
         }
 
-        units[unitId] = null; // unit replaced with null therefore removed/decomissioned
+        units[unitId] = null; // unit replaced with null therefore removed/decommissioned
     }
 
     @Override
@@ -253,39 +252,84 @@ public class CityRescueImpl implements CityRescue {
     @Override
     public void cancelIncident(int incidentId) throws IDNotRecognisedException, IllegalStateException {
         if (incidentId < 1 || incidentId >= incidents.length || incidents[incidentId] == null) throw new IDNotRecognisedException("Incident ID not found.");
-        
+
         Incident incident = incidents[incidentId];
-        // check if incident is REPORTED or DISPATCHED only
+        // Raises invalid state exception if the incident status is not REPORTED or DISPATCHED.
         if (incident.getStatus() != IncidentStatus.REPORTED && incident.getStatus() != IncidentStatus.DISPATCHED) {
             throw new IllegalStateException("Cannot cancel an incident that is not REPORTED or DISPATCHED.");
         }
-
-        //TODO: finish method
+        // If it was dispatched, then it cancels the incident and sets the unit to idle.
+        if (incident.getStatus() == IncidentStatus.DISPATCHED) {
+            incidents[incidentId].setStatus(IncidentStatus.CANCELLED);
+            units[incident.getUnitId()].setStatus(UnitStatus.IDLE);
+        }
     }
 
     @Override
     public void escalateIncident(int incidentId, int newSeverity) throws IDNotRecognisedException, InvalidSeverityException, IllegalStateException {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        if (incidentId < 1 || incidentId >= incidents.length || incidents[incidentId] == null) throw new IDNotRecognisedException("Incident ID not found.");
+        if (incidents[incidentId].getStatus() == IncidentStatus.RESOLVED || incidents[incidentId].getStatus() == IncidentStatus.CANCELLED) {
+            throw new IllegalStateException("Cannot escalate an incident that is RESOLVED or CANCELLED.");
+        }
+        if (newSeverity < 1 || newSeverity > 5) throw new InvalidSeverityException("New severity is too low or high");
+        incidents[incidentId].setSeverity(newSeverity);
     }
 
     @Override
     public int[] getIncidentIds() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        int[] incident_ids = new int[incidents.length];
+        for (int i = 0; i < incidents.length; i++) {
+            incident_ids[i] = incidents[i].getIncidentId();
+        }
+        return incident_ids;
     }
 
     @Override
     public String viewIncident(int incidentId) throws IDNotRecognisedException {
+        if (incidentId < 1 || incidentId >= units.length || units[incidentId] == null) throw new
+                IDNotRecognisedException("Unit ID does not exist.");
+
         Incident incident = incidents[incidentId];
         return String.format("I#%d TYPE=%S SEV=%d LOC=(%d, %d) STATUS=%S UNIT=%d",
-                incidentId, incident.getType(), incident.severity, incident.x, incident.y, incident.getStatus(), incident.unit);
+                incidentId, incident.getType(), incident.getSeverity(), incident.getX(),
+                incident.getY(), incident.getStatus(), incident.getUnitId());
     }
 
     @Override
+    // TODO: Break into helper methods.
+    // For each reported incident: assigns the best eligible unit, sets incident as DISPATCHED and unit as EN_ROUTE.
     public void dispatch() {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented yet");
+        // Saves array of all eligible units, count used to avoid null pointers.
+        int eligible_count = 0;
+        Unit[] eligible_units = new Unit[units.length];
+
+        for (int i = 0; i < nextUnit; i++) {
+            if (units[i].getStatus() == UnitStatus.IDLE) {
+                eligible_units[eligible_count] = units[i];
+                eligible_count ++;
+            }
+        }
+
+        int min_manhattan_distance = 2 * map.getHeight();
+        int min_distance_id = -1;
+
+        for (int i = 0; i < eligible_count; i++) {
+            int current_manhattan_distance = eligible_units[i].calculate_manhattan_distance(new int[] {}, new int[] {});
+            int current_unit_id = eligible_units[i].get_unit_id();
+
+            if (current_manhattan_distance < min_manhattan_distance) {
+                min_manhattan_distance = current_manhattan_distance;
+                min_distance_id = current_unit_id;
+            } else if (current_manhattan_distance == min_manhattan_distance) {
+                // Uses other tiebreakers when there is a same minimum Manhattan distance.
+                if (current_unit_id < min_distance_id) {
+                    min_distance_id = current_unit_id;
+                } else if (current_unit_id == min_distance_id) {
+                    // TODO: Uses buildingID tiebreaker if the unit IDs are the same.
+
+                }
+            }
+        }
     }
 
     @Override
@@ -295,6 +339,7 @@ public class CityRescueImpl implements CityRescue {
         for (int i = 0; i < units.length; i++) {
             units[i].unit_tick();
         }
+        dispatch();
         ticks ++;
     }
 
@@ -302,19 +347,21 @@ public class CityRescueImpl implements CityRescue {
     // Returns specifically formatted string as report of ticks, incidents and units.
     public String getStatus() {
         String status_report = "";
-        // TODO: Method to count obstacles in map class
         status_report += String.format("TICK=%d\nSTATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d\n", ticks,
-                stations.length, units.length, incidents.length, 0);
+                stations.length, units.length, incidents.length, map.countObstacles());
         status_report += "INCIDENTS\n";
         // Loop adds from class status method for all the incidents.
+        // TODO: Fix exception handling.
         for (int i = 1; i < nextIncident; i++) {
             status_report += viewIncident(incidents[i].getIncidentId());
         }
-        status_report += "UNITS\n";
+        status_report += "\nUNITS\n";
         // Loop adds from class status method for all the units.
         for (int i = 1; i < nextUnit; i++) {
             status_report += viewUnit(units[i].get_unit_id());
         }
         return status_report;
     }
+
+    public Incident[] getIncidents() {return incidents;}
 }
