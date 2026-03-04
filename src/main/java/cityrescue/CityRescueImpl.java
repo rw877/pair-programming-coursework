@@ -232,8 +232,9 @@ public class CityRescueImpl implements CityRescue {
 
         Unit unit = units[unitId];
 
-        return String.format("U#%d TYPE=%S HOME=%d LOC=(%d, %d) STATUS=%S INCIDENT=%d", unitId,
-                unit.getType().toString(), 0,  unit.getX(), unit.getY(), unit.getStatus().toString(), unit.getIncidentId());
+        return String.format("U#%d TYPE=%S HOME=%d LOC=(%d,%d) STATUS=%S INCIDENT=%d", unitId,
+                unit.getType().toString(), unit.getBuildingId(),  unit.getX(), unit.getY(),
+                unit.getStatus().toString(), unit.getIncidentId());
     }
 
     @Override
@@ -290,29 +291,12 @@ public class CityRescueImpl implements CityRescue {
                 IDNotRecognisedException("Unit ID does not exist.");
 
         Incident incident = incidents[incidentId];
-        return String.format("I#%d TYPE=%S SEV=%d LOC=(%d, %d) STATUS=%S UNIT=%d",
+        return String.format("I#%d TYPE=%S SEV=%d LOC=(%d,%d) STATUS=%S UNIT=%d",
                 incidentId, incident.getType(), incident.getSeverity(), incident.getX(),
                 incident.getY(), incident.getStatus(), incident.getUnitId());
     }
 
-    // Helper method finds eligible units based on status and unit type.
-    public Unit findOptimalUnit(Incident incident) {
-        // Saves array of all eligible units, count used to avoid null pointers.
-        int eligibleCount = 0;
-        Unit[] eligibleUnits = new Unit[units.length + 1];
-
-        // Loop generates list of all eligible units for the given incident.
-        for (int i = 1; i < nextUnit; i++) {
-            // First, checks that the unit is idle.
-            if (units[i].getStatus() == UnitStatus.IDLE) {
-                // Then, checks to see that the incident type corresponds to the unit type.
-                if (units[i].getType().ordinal() == incident.getType().ordinal()) {
-                    eligibleUnits[eligibleCount] = units[i];
-                    eligibleCount++;
-                }
-            }
-        }
-
+    public Unit calculateTieBreakers(Unit[] eligibleUnits, int eligibleCount, Incident incident) {
         int minManhattanDistance = 2 * map.getHeight();
         int minDistanceId = -1;
         // Loops through eligible units, using distance, then tiebreakers.
@@ -338,8 +322,28 @@ public class CityRescueImpl implements CityRescue {
                 }
             }
         }
-        // When the closest unit is found, it is returned.
         return units[minDistanceId];
+    }
+
+    // Helper method finds eligible units based on status and unit type.
+    public Unit findOptimalUnit(Incident incident) {
+        // Saves array of all eligible units, count used to avoid null pointers.
+        int eligibleCount = 0;
+        Unit[] eligibleUnits = new Unit[units.length + 1];
+
+        // Loop generates list of all eligible units for the given incident.
+        for (int i = 1; i < nextUnit; i++) {
+            // First, checks that the unit is idle.
+            if (units[i].getStatus() == UnitStatus.IDLE) {
+                // Then, checks to see that the incident type corresponds to the unit type.
+                if (units[i].getType().ordinal() == incident.getType().ordinal()) {
+                    eligibleUnits[eligibleCount] = units[i];
+                    eligibleCount++;
+                }
+            }
+        }
+        // Helper method uses manhattan distances and IDs to determine the optimal unit.
+        return calculateTieBreakers(eligibleUnits, eligibleCount, incident);
     }
 
     @Override
@@ -351,16 +355,13 @@ public class CityRescueImpl implements CityRescue {
                 // Calls helper method to find the optimal eligible unit based on ID order, distance and compatibility.
                 optimal_unit.setStatus(UnitStatus.EN_ROUTE);
                 optimal_unit.setIncidentId(i);
+                incidents[i].setUnitId(optimal_unit.getUnitId());
                 incidents[i].setStatus(IncidentStatus.DISPATCHED);
             }
         }
     }
 
-    @Override
-    // Tick updates movements with manhattan rule, arrivals, on-scene, resolution.
-    public void tick() {
-        ticks ++;
-        dispatch();
+    public void unitTick() {
         // Iterates through all units in ascending ID order, updates movements and status.
         for (int i = 1; i < nextUnit; i++) {
             if (units[i].getStatus() == UnitStatus.EN_ROUTE) {
@@ -371,10 +372,11 @@ public class CityRescueImpl implements CityRescue {
                         new int[] {units[i].getX(), units[i].getY()}) == 0) {
                     units[i].setStatus(UnitStatus.AT_SCENE);
                 }
-                break;
             }
         }
+    }
 
+    public void incidentTick() {
         // Iterates through all incidents in ascending ID order, decreases counter or resolves.
         for (int i = 1; i < nextIncident; i++) {
             Unit incidentUnit = units[incidents[i].getUnitId()];
@@ -388,6 +390,15 @@ public class CityRescueImpl implements CityRescue {
                 }
             }
         }
+    }
+
+    @Override
+    // Tick updates movements with manhattan rule, arrivals, on-scene, resolution.
+    public void tick() {
+        ticks ++;
+        dispatch();
+        unitTick();
+        incidentTick();
     }
 
     @Override

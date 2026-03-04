@@ -28,6 +28,8 @@ public class Incident {
     // Getters and Setters for Incident encapsulation.
     public int getIncidentId() {return incidentId;}
 
+    public void setUnitId(int newId) {unitId = newId;}
+
     public int getUnitId() {return unitId;}
 
     public IncidentStatus getStatus() {return status;}
