@@ -4,7 +4,7 @@ import cityrescue.enums.IncidentStatus;
 import cityrescue.enums.IncidentType;
 
 /**
- *
+ * Incident class is mainly getters and setters that store type, severity, coordinates and IDs.
  */
 public class Incident {
     private IncidentType type;
@@ -16,7 +16,13 @@ public class Incident {
     private IncidentStatus status;
 
     /**
+     * Constructor for incident class takes the id, type, severity and coordinates.
      *
+     * @param incidentId used to identify in CityRescueImpl
+     * @param type corresponds to unit types
+     * @param severity initial severity of incident
+     * @param x x coordinate for incident
+     * @param y y coordinate for incident
      */
     public Incident(int incidentId, IncidentType type, int severity, int x, int y) {
         this.incidentId = incidentId;

@@ -47,7 +47,7 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     * Returns an int array pair of width and height of the map using getter functions.
+     * @return an int array pair of width and height of the map using getter functions.
     */
     @Override
     public int[] getGridSize() {
@@ -93,6 +93,7 @@ public class CityRescueImpl implements CityRescue {
      * @param y the y coordinate of the station
      * @throws InvalidNameException if input name is blank
      * @throws InvalidLocationException if the x or y coordinate is out of bounds
+     * @return int station id
      */
     @Override
     public int addStation(String name, int x, int y) throws InvalidNameException, InvalidLocationException {
@@ -155,6 +156,8 @@ public class CityRescueImpl implements CityRescue {
     /**
      * Iterates through station array and uses count variable to keep track of how many IDs there are, avoiding spaces
      * with null arrays. It returns a new array of the size count with all the station IDs extracted from a second loop.
+     *
+     * @return int array of station IDs
      */
     @Override
     public int[] getStationIds() {
@@ -182,6 +185,7 @@ public class CityRescueImpl implements CityRescue {
      * @throws IDNotRecognisedException if ID is out of bounds
      * @throws InvalidUnitException if the unit type is null, avoiding null pointer errors
      * @throws IllegalStateException if the station is full
+     * @return int ID of new unit
      */
     @Override
     public int addUnit(int stationId, UnitType type) throws IDNotRecognisedException, InvalidUnitException, IllegalStateException {
@@ -298,6 +302,8 @@ public class CityRescueImpl implements CityRescue {
     /**
      * Similar to getStationIds, iterates through all the units and counts the ones that are not null, then creates an
      * array of that length and adds the ids that aren't null pointers from units, giving this array as output.
+     *
+     * @return array of unit IDs
      */
     @Override
     public int[] getUnitIds() {
@@ -322,6 +328,7 @@ public class CityRescueImpl implements CityRescue {
      *
      * @param unitId used to access unit.
      * @throws IDNotRecognisedException if ID out of range or null pointer.
+     * @return formatted string with ID, type, home, coordinates, status, incident
      */
     @Override
     public String viewUnit(int unitId) throws IDNotRecognisedException {
@@ -344,6 +351,7 @@ public class CityRescueImpl implements CityRescue {
      * @param y coordinate for incident
      * @throws InvalidSeverityException if severity is out of the possible range
      * @throws InvalidLocationException if location is blocked or out of bounds
+     * @return int incident ID
      */
     @Override
     public int reportIncident(IncidentType type, int severity, int x, int y) throws InvalidSeverityException, InvalidLocationException {
@@ -402,6 +410,8 @@ public class CityRescueImpl implements CityRescue {
 
     /**
      * Iterates through all the incidents and adds the incident id for each incident to an array of IDs.
+     *
+     * @return incident ID array
      */
     @Override
     public int[] getIncidentIds() {
@@ -418,6 +428,7 @@ public class CityRescueImpl implements CityRescue {
      *
      * @param incidentId used to extract incident
      * @throws IDNotRecognisedException if ID out of bounds or null pointer
+     * @return formatted string of incident ID, type, severity, coordinates, status, unit
      */
     @Override
     public String viewIncident(int incidentId) throws IDNotRecognisedException {
@@ -438,6 +449,7 @@ public class CityRescueImpl implements CityRescue {
      * @param eligibleUnits array of units that are the same type as incident and have IDLE status
      * @param eligibleCount used to restrict length of iterating through eligibleUnits to avoid null pointers
      * @param incident used to get the coordinates of the incident when comparing the Manhattan distance
+     * @return Unit from units array of the ID saved as having the smallest distance
      */
     public Unit calculateTieBreakers(Unit[] eligibleUnits, int eligibleCount, Incident incident) {
         int minManhattanDistance = 2 * map.getHeight();
@@ -473,6 +485,7 @@ public class CityRescueImpl implements CityRescue {
      * calculateTieBreakers helper method and returns the result of this as the optimal unit for a given incident.
      *
      * @param incident used to find compatible unit based on enum index
+     * @return result passed in from tiebreaker helper method
      */
     public Unit findOptimalUnit(Incident incident) {
         // Saves array of all eligible units, count used to avoid null pointers.
@@ -573,6 +586,8 @@ public class CityRescueImpl implements CityRescue {
      * Function returns a formatted string with the class attributes from units, incidents and stations. It calls the
      * view incident and unit methods in the loops to add the reported format for each incident and unit from their
      * respective arrays. Try catch blocks are used to handle the exceptions from ID getter methods.
+     *
+     * @return formatted string with status for tick, incidents and units.
      */
     @Override
     public String getStatus() {

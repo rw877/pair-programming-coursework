@@ -7,7 +7,8 @@ import cityrescue.enums.UnitStatus;
 import java.lang.Math;
 
 /**
- *
+ * Unit class is abstract, overridden by Ambulance, FireEngine and PoliceCar classes, has a UnitType and methods to
+ * calculate manhattan distance, make a move and get/set private field variables.
  */
 public abstract class Unit {
 
@@ -22,13 +23,13 @@ public abstract class Unit {
     private int ticksRemaining;
 
     /**
-     * Constructor for the unit class takes unit id generated from Impl
+     * Constructor for the unit class takes unit id, the id for its station, coordinates and the type of unit.
      *
-     * @param unitId
-     * @param buildingId
-     * @param x
-     * @param y
-     * @param type
+     * @param unitId used to identify the unit in CityRescueImpl
+     * @param buildingId used to retrieve which station it is attached to
+     * @param x stores x coordinate
+     * @param y stores y coordinate
+     * @param type stores the type of unit, which is used in overridden child classes.
      */
     public Unit(int unitId, int buildingId, int x, int y, UnitType type) {
         this.unitId = unitId;
@@ -42,10 +43,12 @@ public abstract class Unit {
     }
 
     /**
-     *
+     * Uses sum of absolute value differences between x and y coordinates of the unit and incident to calculate the
+     * Manhattan distance formula.
      *
      * @param incidentCoordinates
      * @param unitCoordinates
+     * @return int with value of Manhattan distance sum.
      */
     public int calculateManhattanDistance(int[] incidentCoordinates, int[] unitCoordinates) {
         return Math.abs(incidentCoordinates[0] - unitCoordinates[0]) +
@@ -53,7 +56,8 @@ public abstract class Unit {
     }
 
     /**
-     *
+     * Iterates through move vectors in NESW order to find the first legal move with a shorter Manhattan distance. This
+     * is deterministic, and it updates the coordinates for the unit.
      *
      * @param incidentCoordinates
      * @param unitCoordinates
