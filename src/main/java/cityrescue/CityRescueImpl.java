@@ -272,7 +272,13 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
+     * Given the boolean on if a unit is out of service, this method either makes a unit that is idle out of service,
+     * or a unit with outOfService as false toggles from out of service to idle.
      *
+     * @param unitId passed in to access unit
+     * @param outOfService boolean on whether unit is already out of service or not
+     * @throws IDNotRecognisedException if the id is out of bounds or points to null
+     * @throws IllegalStateException if the unit is out of service, but not idle
      */
     @Override
     public void setUnitOutOfService(int unitId, boolean outOfService) throws IDNotRecognisedException, IllegalStateException {
@@ -290,7 +296,8 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     *
+     * Similar to getStationIds, iterates through all the units and counts the ones that are not null, then creates an
+     * array of that length and adds the ids that aren't null pointers from units, giving this array as output.
      */
     @Override
     public int[] getUnitIds() {
@@ -311,7 +318,10 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
+     * Given a unit ID, does string formatting to display all the attributes for unit, using getters.
      *
+     * @param unitId used to access unit.
+     * @throws IDNotRecognisedException if ID out of range or null pointer.
      */
     @Override
     public String viewUnit(int unitId) throws IDNotRecognisedException {
@@ -326,7 +336,14 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
+     * Creates new incident with parameters passed in.
      *
+     * @param type uses to check for null and creates incident with type
+     * @param severity of incident
+     * @param x coordinate for incident
+     * @param y coordinate for incident
+     * @throws InvalidSeverityException if severity is out of the possible range
+     * @throws InvalidLocationException if location is blocked or out of bounds
      */
     @Override
     public int reportIncident(IncidentType type, int severity, int x, int y) throws InvalidSeverityException, InvalidLocationException {
@@ -342,7 +359,11 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
+     * If the incident was dispatched, sets unit to IDLE and for both cases, sets incident to CANCELLED.
      *
+     * @param incidentId to extract incident
+     * @throws IDNotRecognisedException if out of bounds or null pointer
+     * @throws IllegalStateException if tries to cancel incident not REPORTED or DISPATCHED
      */
     @Override
     public void cancelIncident(int incidentId) throws IDNotRecognisedException, IllegalStateException {
@@ -354,14 +375,20 @@ public class CityRescueImpl implements CityRescue {
             throw new IllegalStateException("Cannot cancel an incident that is not REPORTED or DISPATCHED.");
         }
         // If it was dispatched, then it cancels the incident and sets the unit to idle.
-        if (incident.getStatus() == IncidentStatus.DISPATCHED) {
-            incidents[incidentId].setStatus(IncidentStatus.CANCELLED);
-            units[incident.getUnitId()].setStatus(UnitStatus.IDLE);
-        }
+        if (incident.getStatus() == IncidentStatus.DISPATCHED) units[incident.getUnitId()].setStatus(UnitStatus.IDLE);
+
+        // Called for both DISPATCHED and REPORTED incidents.
+        incidents[incidentId].setStatus(IncidentStatus.CANCELLED);
     }
 
     /**
+     * Sets incident severity as new input severity by using incident class encapsulation.
      *
+     * @param incidentId used to extract incident
+     * @param newSeverity overwrites old incident severity value
+     * @throws IDNotRecognisedException
+     * @throws InvalidSeverityException
+     * @throws IllegalStateException
      */
     @Override
     public void escalateIncident(int incidentId, int newSeverity) throws IDNotRecognisedException, InvalidSeverityException, IllegalStateException {
@@ -374,19 +401,23 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     *
+     * Iterates through all the incidents and adds the incident id for each incident to an array of IDs.
      */
     @Override
     public int[] getIncidentIds() {
         int[] incidentIds = new int[incidents.length];
         for (int i = 0; i < incidents.length; i++) {
-            incidentIds[i] = incidents[i].getIncidentId();
+            if (incidents[i] != null) incidentIds[i] = incidents[i].getIncidentId();
         }
         return incidentIds;
     }
 
     /**
+     * Uses incidentId to get incident from incidents, then uses class encapsulation to get attributes for incident,
+     * returns a formatted string.
      *
+     * @param incidentId used to extract incident
+     * @throws IDNotRecognisedException if ID out of bounds or null pointer
      */
     @Override
     public String viewIncident(int incidentId) throws IDNotRecognisedException {
@@ -400,7 +431,13 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
+     * Helper method for findOptimalUnit, given an array with all the compatible events, it iterates through them and
+     * when multiple elements are tied for the minimum distance, it chooses the smallest ID. If IDs are tied, then it
+     * chooses the smallest station ID.
      *
+     * @param eligibleUnits array of units that are the same type as incident and have IDLE status
+     * @param eligibleCount used to restrict length of iterating through eligibleUnits to avoid null pointers
+     * @param incident used to get the coordinates of the incident when comparing the Manhattan distance
      */
     public Unit calculateTieBreakers(Unit[] eligibleUnits, int eligibleCount, Incident incident) {
         int minManhattanDistance = 2 * map.getHeight();
@@ -432,7 +469,10 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
+     * Helper method for dispatch, creates array of eligible unit by using status and type as filters. Passes this into
+     * calculateTieBreakers helper method and returns the result of this as the optimal unit for a given incident.
      *
+     * @param incident used to find compatible unit based on enum index
      */
     public Unit findOptimalUnit(Incident incident) {
         // Saves array of all eligible units, count used to avoid null pointers.
@@ -455,7 +495,8 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     *
+     * For every incident, if it has been reported, then it finds the best suited unit and dispatches it by changing
+     * field variables related to ID and status.
      */
     @Override
     public void dispatch() {
@@ -472,12 +513,13 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     *
+     * Helper method for tick, iterates through all units in ascending ID order and moves any units that are EN_ROUTE.
+     * It also checks if a unit has arrived within the same tick of moving and changes status to AT_SCENE if so.
      */
     public void unitTick() {
-        // Iterates through all units in ascending ID order, updates movements and status.
         for (int i = 1; i < nextUnit; i++) {
             if (units[i].getStatus() == UnitStatus.EN_ROUTE) {
+                // calls makeMove if the unit is EN_ROUTE, checks if it arrived to incident and updates if so.
                 Incident incident = incidents[units[i].getIncidentId()];
                 units[i].makeMove(new int[] {incident.getX(), incident.getY()}, new int[] {units[i].getX(), units[i].getY()});
 
@@ -490,10 +532,11 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     *
+     * Helper method for tick iterates through all incidents in ascending ID order. Decrements tick if it was already
+     * at scene and intialised. Otherwise, it arrived in the same larger tick from the unitTick method and should not
+     * be decremented. At zero ticks, the incident is resolved and the unit is idle.
      */
     public void incidentTick() {
-        // Iterates through all incidents in ascending ID order, decreases counter or resolves.
         for (int i = 1; i < nextIncident; i++) {
             Unit incidentUnit = units[incidents[i].getUnitId()];
             if (incidentUnit.getStatus() == UnitStatus.AT_SCENE) {
@@ -515,7 +558,8 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     *
+     * Tick increments the tick count before carrying out any operations, then it calls dispatch, followed by tick
+     * update helpers for unit and incident.
      */
     @Override
     public void tick() {
@@ -526,7 +570,9 @@ public class CityRescueImpl implements CityRescue {
     }
 
     /**
-     *
+     * Function returns a formatted string with the class attributes from units, incidents and stations. It calls the
+     * view incident and unit methods in the loops to add the reported format for each incident and unit from their
+     * respective arrays. Try catch blocks are used to handle the exceptions from ID getter methods.
      */
     @Override
     public String getStatus() {

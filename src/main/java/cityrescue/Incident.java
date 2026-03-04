@@ -2,7 +2,6 @@ package cityrescue;
 
 import cityrescue.enums.IncidentStatus;
 import cityrescue.enums.IncidentType;
-import cityrescue.enums.UnitStatus;
 
 /**
  *

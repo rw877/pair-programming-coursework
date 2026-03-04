@@ -22,7 +22,13 @@ public abstract class Unit {
     private int ticksRemaining;
 
     /**
+     * Constructor for the unit class takes unit id generated from Impl
      *
+     * @param unitId
+     * @param buildingId
+     * @param x
+     * @param y
+     * @param type
      */
     public Unit(int unitId, int buildingId, int x, int y, UnitType type) {
         this.unitId = unitId;
@@ -37,6 +43,9 @@ public abstract class Unit {
 
     /**
      *
+     *
+     * @param incidentCoordinates
+     * @param unitCoordinates
      */
     public int calculateManhattanDistance(int[] incidentCoordinates, int[] unitCoordinates) {
         return Math.abs(incidentCoordinates[0] - unitCoordinates[0]) +
@@ -45,6 +54,9 @@ public abstract class Unit {
 
     /**
      *
+     *
+     * @param incidentCoordinates
+     * @param unitCoordinates
      */
     public void makeMove(int[] incidentCoordinates, int[] unitCoordinates) {
         int unitDistance = calculateManhattanDistance(incidentCoordinates, unitCoordinates);
