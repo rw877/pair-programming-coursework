@@ -1,20 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: PublicOutputFormatTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 2, Skipped: 0, Time elapsed: 0.006 s <<< FAILURE! -- in PublicOutputFormatTest
-PublicOutputFormatTest.getStatus_containsRequiredHeadings -- Time elapsed: 0.002 s <<< ERROR!
-java.lang.UnsupportedOperationException: Not implemented yet
-	at cityrescue.CityRescueImpl.getStatus(CityRescueImpl.java:287)
-	at PublicOutputFormatTest.getStatus_containsRequiredHeadings(PublicOutputFormatTest.java:19)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
-PublicOutputFormatTest.viewUnit_and_viewIncident_haveStablePrefixes -- Time elapsed: 0.001 s <<< ERROR!
-cityrescue.exceptions.IDNotRecognisedException: That is not a valid ID
-	at cityrescue.CityRescueImpl.addUnit(CityRescueImpl.java:127)
-	at PublicOutputFormatTest.viewUnit_and_viewIncident_haveStablePrefixes(PublicOutputFormatTest.java:28)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.003 s -- in PublicOutputFormatTest

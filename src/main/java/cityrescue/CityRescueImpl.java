@@ -381,7 +381,13 @@ public class CityRescueImpl implements CityRescue {
         for (int i = 1; i < nextIncident; i++) {
             Unit incidentUnit = units[incidents[i].getUnitId()];
             if (incidentUnit.getStatus() == UnitStatus.AT_SCENE) {
-                incidentUnit.decrementTicksRemaining();
+                // If the first time arriving, it sets remaining ticks as max for subclass.
+                if (incidentUnit.getTicksRemaining() == -1) {
+                    incidentUnit.setTicksRemaining(incidentUnit.getTicksToResolve());
+                } else {
+                    // Otherwise. it decrements the tick count.
+                    incidentUnit.decrementTicksRemaining();
+                }
 
                 // Checks if ticks are zero to resolve incident.
                 if (incidentUnit.getTicksRemaining() == 0) {

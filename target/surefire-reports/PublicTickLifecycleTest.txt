@@ -1,12 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: PublicTickLifecycleTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 0.003 s <<< FAILURE! -- in PublicTickLifecycleTest
-PublicTickLifecycleTest.tick_movesUnitTowardIncident_andEventuallyResolves -- Time elapsed: 0.002 s <<< ERROR!
-cityrescue.exceptions.IDNotRecognisedException: That is not a valid ID
-	at cityrescue.CityRescueImpl.addUnit(CityRescueImpl.java:127)
-	at PublicTickLifecycleTest.tick_movesUnitTowardIncident_andEventuallyResolves(PublicTickLifecycleTest.java:20)
-	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
-
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.020 s -- in PublicTickLifecycleTest

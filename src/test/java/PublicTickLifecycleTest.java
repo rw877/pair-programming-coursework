@@ -25,14 +25,8 @@ public class PublicTickLifecycleTest {
         cr.tick(); // should arrive at (0,1) in one tick
         assertTrue(cr.viewUnit(u).contains("LOC=(0,1)"));
 
-        System.out.println(cr.viewIncident(i));
-        System.out.println(cr.viewUnit(u));
         cr.tick();
-        System.out.println(cr.viewIncident(i));
-        System.out.println(cr.viewUnit(u));
         cr.tick();
-        System.out.println(cr.viewIncident(i));
-        System.out.println(cr.viewUnit(u));
         assertTrue(cr.viewIncident(i).contains("STATUS=RESOLVED"));
         assertTrue(cr.viewUnit(u).contains("STATUS=IDLE"));
     }

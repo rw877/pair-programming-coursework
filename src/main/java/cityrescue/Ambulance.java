@@ -16,7 +16,7 @@ public class Ambulance extends Unit {
     }
 
     @Override
-    public int getTicksToResolve(int severity) {
+    public int getTicksToResolve() {
         return 2;
     }
 }

@@ -15,7 +15,7 @@ public class PoliceCar extends Unit {
     }
 
     @Override
-    public int getTicksToResolve(int severity) {
+    public int getTicksToResolve() {
         return 3;
     }
 }

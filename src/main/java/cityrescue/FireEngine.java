@@ -15,7 +15,7 @@ public class FireEngine extends Unit {
     }
 
     @Override
-    public int getTicksToResolve(int severity) {
+    public int getTicksToResolve() {
         return 4;
     }
 }

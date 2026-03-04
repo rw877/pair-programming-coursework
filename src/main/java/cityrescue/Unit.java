@@ -25,6 +25,8 @@ public abstract class Unit {
         this.y = y;
         this.type = type;
         this.status = UnitStatus.IDLE;
+        // Used as -1 to tell when first arriving to incident.
+        this.ticksRemaining = -1;
     }
 
     // Helper method for make_move returns the manhattan distance between incident and unit.
@@ -52,8 +54,7 @@ public abstract class Unit {
 
     // These abstract classes differ between children and are overridden there.
     public abstract boolean canHandle(IncidentType type);
-    public abstract int getTicksToResolve(int severity);
-
+    public abstract int getTicksToResolve();
 
     // Getter methods for private variables.
     public int getUnitId() {
@@ -84,6 +85,8 @@ public abstract class Unit {
     public void setY(int newY) {y = newY;}
 
     public void setIncidentId(int id) {incidentId = id;}
+
+    public void setTicksRemaining(int ticks) {ticksRemaining = ticks;}
 
     public void decrementTicksRemaining() {ticksRemaining--;}
 
