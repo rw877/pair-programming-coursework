@@ -6,6 +6,9 @@ import cityrescue.enums.UnitType;
 import cityrescue.enums.UnitStatus;
 import java.lang.Math;
 
+/**
+ *
+ */
 public abstract class Unit {
 
     final int[][] MOVE_VECTORS = {{1, 0}, {0, 1}, {1, 0}, {0, -1}};
@@ -18,6 +21,9 @@ public abstract class Unit {
     private UnitStatus status;
     private int ticksRemaining;
 
+    /**
+     *
+     */
     public Unit(int unitId, int buildingId, int x, int y, UnitType type) {
         this.unitId = unitId;
         this.buildingId = buildingId;
@@ -29,13 +35,17 @@ public abstract class Unit {
         this.ticksRemaining = -1;
     }
 
-    // Helper method for make_move returns the manhattan distance between incident and unit.
+    /**
+     *
+     */
     public int calculateManhattanDistance(int[] incidentCoordinates, int[] unitCoordinates) {
         return Math.abs(incidentCoordinates[0] - unitCoordinates[0]) +
                 Math.abs(incidentCoordinates[1] - unitCoordinates[1]);
     }
 
-    // Makes first legal move that reduces Manhattan distance, searches NESW with vectors.
+    /**
+     *
+     */
     public void makeMove(int[] incidentCoordinates, int[] unitCoordinates) {
         int unitDistance = calculateManhattanDistance(incidentCoordinates, unitCoordinates);
         for (int i = 0; i < MOVE_VECTORS.length; i++) {

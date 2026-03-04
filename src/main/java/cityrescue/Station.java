@@ -1,5 +1,8 @@
 package cityrescue;
 
+/**
+ *
+ */
 public class Station {
     private String name;
     private int x;
@@ -10,6 +13,9 @@ public class Station {
 
     final int CAPACITY = 10;
 
+    /**
+     *
+     */
     public Station(int stationId, String name, int x, int y) {
         this.stationId = stationId;
         this.name = name;

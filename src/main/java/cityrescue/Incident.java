@@ -4,7 +4,9 @@ import cityrescue.enums.IncidentStatus;
 import cityrescue.enums.IncidentType;
 import cityrescue.enums.UnitStatus;
 
-
+/**
+ *
+ */
 public class Incident {
     private IncidentType type;
     private int incidentId;
@@ -14,7 +16,9 @@ public class Incident {
     private int unitId;
     private IncidentStatus status;
 
-    
+    /**
+     *
+     */
     public Incident(int incidentId, IncidentType type, int severity, int x, int y) {
         this.incidentId = incidentId;
         this.type = type;

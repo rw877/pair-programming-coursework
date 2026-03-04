@@ -1,10 +1,16 @@
 package cityrescue;
 
+/**
+ *
+ */
 public class CityMap {
     private int width;
     private int height;
     private boolean[][] obstacles;
-    
+
+    /**
+     *
+     */
     public CityMap(int width, int height) {
         this.width = width;
         this.height = height;
@@ -27,6 +33,7 @@ public class CityMap {
             obstacles[x][y] = blocked;
         }
     }
+
     public int countObstacles() {
         int obstacleCount = 0;
         for (int i = 0; i < obstacles.length; i++) {
