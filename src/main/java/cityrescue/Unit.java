@@ -16,7 +16,7 @@ public abstract class Unit {
     private int incidentId;
     private UnitType type;
     private UnitStatus status;
-    private int ticks_remaining_at_scene;
+    private int ticksRemaining;
 
     public Unit(int unitId, int buildingId, int x, int y, UnitType type) {
         this.unitId = unitId;
@@ -28,45 +28,25 @@ public abstract class Unit {
     }
 
     // Helper method for make_move returns the manhattan distance between incident and unit.
-    public int calculate_manhattan_distance(int[] incident_coordinates, int[] unit_coordinates) {
-        return Math.abs(incident_coordinates[0] - unit_coordinates[0]) +
-                Math.abs(incident_coordinates[1] - unit_coordinates[1]);
+    public int calculateManhattanDistance(int[] incidentCoordinates, int[] unitCoordinates) {
+        return Math.abs(incidentCoordinates[0] - unitCoordinates[0]) +
+                Math.abs(incidentCoordinates[1] - unitCoordinates[1]);
     }
 
     // Makes first legal move that reduces Manhattan distance, searches NESW with vectors.
-    public void make_move(int[] incident_coordinates, int[] unit_coordinates) {
-        int unit_distance = calculate_manhattan_distance(incident_coordinates, unit_coordinates);
+    public void makeMove(int[] incidentCoordinates, int[] unitCoordinates) {
+        int unitDistance = calculateManhattanDistance(incidentCoordinates, unitCoordinates);
         for (int i = 0; i < MOVE_VECTORS.length; i++) {
-            int move_x = unit_coordinates[0] + MOVE_VECTORS[i][0];
-            int move_y = unit_coordinates[1] + MOVE_VECTORS[i][1];
-            // TODO: Use map to check for legal move OOB or obstacle.
+            int move_x = unitCoordinates[0] + MOVE_VECTORS[i][0];
+            int move_y = unitCoordinates[1] + MOVE_VECTORS[i][1];
 
-            int move_distance = calculate_manhattan_distance(incident_coordinates, new int[] {move_x, move_y});
-            if (move_distance < unit_distance) {x = move_x; y = move_y;}
-        }
-    }
+            // Uses map to check for out of bounds or blocked moves.
+            CityMap map = CityRescueImpl.getCityMap();
+            if (map.isBlocked(move_x, move_y)) continue;
+            if (map.isOutOfBounds(move_x, move_y)) continue;
 
-    // Helper method called by tick(), updates each unit based on status.
-    public void unit_tick() {
-        Incident incident = CityRescueImpl.getIncident(incidentId);
-        switch (status) {
-            case IDLE:
-                status = UnitStatus.EN_ROUTE;
-                break;
-            case EN_ROUTE:
-                // Makes first legal move and then checks if it arrived at an incident space.
-                make_move(new int[] {incident.getX(), incident.getY()}, new int[] {x, y});
-                if (calculate_manhattan_distance(new int[] {incident.getX(), incident.getY()}, new int[] {x, y}) == 0) {
-                    status = UnitStatus.AT_SCENE;
-                }
-                break;
-            case AT_SCENE:
-                // Reduces ticks and resolves if count drops to zero.
-                ticks_remaining_at_scene--;
-                if (ticks_remaining_at_scene == 0) {
-                    status = UnitStatus.IDLE;
-                    incident.setStatus(IncidentStatus.RESOLVED);
-                }
+            int move_distance = calculateManhattanDistance(incidentCoordinates, new int[] {move_x, move_y});
+            if (move_distance < unitDistance) {x = move_x; y = move_y;}
         }
     }
 
@@ -76,21 +56,35 @@ public abstract class Unit {
 
 
     // Getter methods for private variables.
-    public int get_unit_id() {
+    public int getUnitId() {
         return unitId;
     }
-    public int get_incident_id() {return incidentId;}
+
+    public int getIncidentId() {return incidentId;}
+
     public UnitStatus getStatus() {return status;}
+
     public int getBuildingId() {return buildingId;}
+
     public UnitType getType() {return type;}
+
+    public int getTicksRemaining() {return ticksRemaining;}
+
     public int getX() {return x;}
+
     public int getY() {return y;}
 
-
     // Setter methods for private variables.
-    public void setStatus(UnitStatus status_in) {status = status_in;}
-    public void setBuildingId(int new_id) {buildingId = new_id;}
-    public void setX(int x_in) {x = x_in;}
-    public void setY(int y_in) {y = y_in;}
+    public void setStatus(UnitStatus newStatus) {status = newStatus;}
+
+    public void setBuildingId(int newId) {buildingId = newId;}
+
+    public void setX(int newX) {x = newX;}
+
+    public void setY(int newY) {y = newY;}
+
+    public void setIncidentId(int id) {incidentId = id;}
+
+    public void decrementTicksRemaining() {ticksRemaining--;}
 
 }

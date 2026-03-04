@@ -10,13 +10,13 @@ import cityrescue.exceptions.*;
  * You may add additional classes in any package(s) you like.
  */
 public class CityRescueImpl implements CityRescue {
-    private CityMap map;
+    private static CityMap map;
     private int ticks = 0;
 
     // Constant array size limits
-    private static final int max_stations = 20;
-    private static final int max_units = 50;
-    private static final int max_incidents = 200;
+    private static final int MAX_STATIONS = 20;
+    private static final int MAX_UNITS = 50;
+    private static final int MAX_INCIDENTS = 200;
 
     // Arrays for each class
     private static Station[] stations;
@@ -36,9 +36,9 @@ public class CityRescueImpl implements CityRescue {
         }
         // setup grid and arrays
         this.map = new CityMap(width, height);
-        this.stations = new Station[max_stations];
-        this.units = new Unit[max_units];
-        this.incidents = new Incident[max_incidents];
+        this.stations = new Station[MAX_STATIONS];
+        this.units = new Unit[MAX_UNITS];
+        this.incidents = new Incident[MAX_INCIDENTS];
         // setup counters
         this.nextStation = 1;
         this.nextUnit = 1;
@@ -79,12 +79,12 @@ public class CityRescueImpl implements CityRescue {
     }
 
     @Override
-    // TODO: add IllegalStateException if still owns units
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
+        if (stations[stationId].getUnitCount() != 0) throw new IllegalStateException("Station that has units cannot be removed.");
         boolean id_recognised = false;
         // Loops through array and shifts following elements to fill space of removing ID.
         for (int i = 0; i < stations.length; i++) {
-            if (stations[i].get_station_id() == stationId) {id_recognised = true;}
+            if (stations[i].getStationId() == stationId) {id_recognised = true;}
             if (id_recognised) {stations[i - 1] = stations[i];}
         }
         if (!id_recognised) {throw new IDNotRecognisedException("Station ID not found.");}
@@ -94,8 +94,11 @@ public class CityRescueImpl implements CityRescue {
     public void setStationCapacity(int stationId, int maxUnits) throws IDNotRecognisedException, InvalidCapacityException {
         Station building = stations[stationId];
 
+        if (stationId < 1 || stationId > MAX_STATIONS || stations[stationId] == null)
+            throw new IDNotRecognisedException("ID not recognised.");
+
         if (maxUnits < 0) throw new InvalidCapacityException("Capacity must be positive.");
-        if (maxUnits < building.getUnit_count()) throw new InvalidCapacityException("Cannot be less than current unit count");
+        if (maxUnits < building.getUnitCount()) throw new InvalidCapacityException("Cannot be less than current unit count");
         
         building.capacity = maxUnits;
     }
@@ -111,7 +114,7 @@ public class CityRescueImpl implements CityRescue {
         int index = 0;
         for (int i = 1; i < nextStation; i++) {
             if (stations[i] != null) {
-                result[index++] = stations[i].get_station_id();
+                result[index++] = stations[i].getStationId();
             }
         }
         return result;
@@ -119,17 +122,17 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int addUnit(int stationId, UnitType type) throws IDNotRecognisedException, InvalidUnitException, IllegalStateException {
-        if (stationId < 1 || stationId >= 21 || stations[stationId] == null) throw new IDNotRecognisedException("That is not a valid ID");
+        if (stationId < 1 || stationId > MAX_STATIONS || stations[stationId] == null) throw new IDNotRecognisedException("That is not a valid ID");
         if (type == null) throw new InvalidUnitException("Cannot be null type.");
 
         Station building = stations[stationId]; //lookup station
-        int unit_count = building.getUnit_count();
+        int unit_count = building.getUnitCount();
         if (unit_count >= building.capacity) throw new IllegalStateException("Station is full already.");
-        if (nextUnit > max_units) throw new IllegalStateException("This station has max units.");
+        if (nextUnit > MAX_UNITS) throw new IllegalStateException("This station has max units.");
 
         int unitId = nextUnit++;
-        int x = building.get_x_coordinate();
-        int y = building.get_y_coordinate(); // creates the new unit at stations coordinates
+        int x = building.getX();
+        int y = building.getY(); // creates the new unit at stations coordinates
 
         //nice example of polymorphism
         if (type == UnitType.AMBULANCE){
@@ -140,7 +143,7 @@ public class CityRescueImpl implements CityRescue {
             units[unitId] = new FireEngine(unitId, stationId, x, y);
         }
 
-        building.setUnit_count(unit_count + 1); //update station building to have new unit
+        building.setUnitCount(unit_count + 1); //update station building to have new unit
         return unitId;
     }
 
@@ -155,8 +158,8 @@ public class CityRescueImpl implements CityRescue {
 
         // lookup units station
         Station station = stations[car.getBuildingId()];
-        if (station.getUnit_count() > 0) {
-            station.setUnit_count(station.getUnit_count() - 1); // remove one unit from stations unit count
+        if (station.getUnitCount() > 0) {
+            station.setUnitCount(station.getUnitCount() - 1); // remove one unit from stations unit count
         }
 
         units[unitId] = null; // unit replaced with null therefore removed/decommissioned
@@ -175,18 +178,18 @@ public class CityRescueImpl implements CityRescue {
         // IDLE unit check
         if (car.getStatus() != UnitStatus.IDLE) throw new IllegalStateException("Unit must be in IDLE state.");
         // space at destination check
-        if (newStation.getUnit_count() >= newStation.capacity) throw new IllegalStateException("New station is at full.");
+        if (newStation.getUnitCount() >= newStation.capacity) throw new IllegalStateException("New station is at full.");
         Station oldStation = stations[car.getBuildingId()]; //original station
         
-        if (oldStation.getUnit_count() > 0) {
-            oldStation.setUnit_count(oldStation.getUnit_count() - 1); // remove station
+        if (oldStation.getUnitCount() > 0) {
+            oldStation.setUnitCount(oldStation.getUnitCount() - 1); // remove station
         }
 
-        newStation.setUnit_count(newStation.getUnit_count() + 1); // add unit to new station
+        newStation.setUnitCount(newStation.getUnitCount() + 1); // add unit to new station
         car.setBuildingId(newStationId); //change units building
         // change units location to new stations coordinates
-        car.setX(newStation.get_x_coordinate());
-        car.setY(newStation.get_y_coordinate());
+        car.setX(newStation.getX());
+        car.setY(newStation.getY());
     }
 
     @Override
@@ -216,7 +219,7 @@ public class CityRescueImpl implements CityRescue {
         int index = 0;
         for (int i = 1; i < nextUnit; i++) {
             if (units[i] != null) {
-                result[index++] = units[i].get_unit_id(); 
+                result[index++] = units[i].getUnitId();
             }
         }
         return result;
@@ -229,8 +232,8 @@ public class CityRescueImpl implements CityRescue {
 
         Unit unit = units[unitId];
 
-        return String.format("U#%d TYPE=%S HOME=%d LOC=(%d, %d) STATUS=%S INCIDENT=%d",
-                unitId, unit.getType().toString(), 0,  unit.getX(), unit.getY(), unit.getStatus().toString(), unit.get_incident_id());
+        return String.format("U#%d TYPE=%S HOME=%d LOC=(%d, %d) STATUS=%S INCIDENT=%d", unitId,
+                unit.getType().toString(), 0,  unit.getX(), unit.getY(), unit.getStatus().toString(), unit.getIncidentId());
     }
 
     @Override
@@ -274,11 +277,11 @@ public class CityRescueImpl implements CityRescue {
 
     @Override
     public int[] getIncidentIds() {
-        int[] incident_ids = new int[incidents.length];
+        int[] incidentIds = new int[incidents.length];
         for (int i = 0; i < incidents.length; i++) {
-            incident_ids[i] = incidents[i].getIncidentId();
+            incidentIds[i] = incidents[i].getIncidentId();
         }
-        return incident_ids;
+        return incidentIds;
     }
 
     @Override
@@ -292,39 +295,63 @@ public class CityRescueImpl implements CityRescue {
                 incident.getY(), incident.getStatus(), incident.getUnitId());
     }
 
-    @Override
-    // TODO: Break into helper methods.
-    // For each reported incident: assigns the best eligible unit, sets incident as DISPATCHED and unit as EN_ROUTE.
-    public void dispatch() {
+    // Helper method finds eligible units based on status and unit type.
+    public Unit findOptimalUnit(Incident incident) {
         // Saves array of all eligible units, count used to avoid null pointers.
-        int eligible_count = 0;
-        Unit[] eligible_units = new Unit[units.length];
+        int eligibleCount = 0;
+        Unit[] eligibleUnits = new Unit[units.length + 1];
 
+        // Loop generates list of all eligible units for the given incident.
         for (int i = 1; i < nextUnit; i++) {
+            // First, checks that the unit is idle.
             if (units[i].getStatus() == UnitStatus.IDLE) {
-                eligible_units[eligible_count] = units[i];
-                eligible_count ++;
+                // Then, checks to see that the incident type corresponds to the unit type.
+                if (units[i].getType().ordinal() == incident.getType().ordinal()) {
+                    eligibleUnits[eligibleCount] = units[i];
+                    eligibleCount++;
+                }
             }
         }
 
-        int min_manhattan_distance = 2 * map.getHeight();
-        int min_distance_id = -1;
+        int minManhattanDistance = 2 * map.getHeight();
+        int minDistanceId = -1;
+        // Loops through eligible units, using distance, then tiebreakers.
+        for (int i = 0; i < eligibleCount; i++) {
+            Unit currentUnit = eligibleUnits[i];
+            int currentUnitId = currentUnit.getUnitId();
+            int current_manhattan_distance = currentUnit.calculateManhattanDistance(new int[]{incident.getX(),
+                    incident.getY()}, new int[]{currentUnit.getX(), currentUnit.getY()});
 
-        for (int i = 0; i < eligible_count; i++) {
-            int current_manhattan_distance = eligible_units[i].calculate_manhattan_distance(new int[] {}, new int[] {});
-            int current_unit_id = eligible_units[i].get_unit_id();
+            // Uses manhattan distance to choose the closest eligible unit.
+            if (current_manhattan_distance < minManhattanDistance) {
+                minManhattanDistance = current_manhattan_distance;
+                minDistanceId = currentUnitId;
 
-            if (current_manhattan_distance < min_manhattan_distance) {
-                min_manhattan_distance = current_manhattan_distance;
-                min_distance_id = current_unit_id;
-            } else if (current_manhattan_distance == min_manhattan_distance) {
+            } else if (current_manhattan_distance == minManhattanDistance) {
                 // Uses other tiebreakers when there is a same minimum Manhattan distance.
-                if (current_unit_id < min_distance_id) {
-                    min_distance_id = current_unit_id;
-                } else if (current_unit_id == min_distance_id) {
-                    // TODO: Uses buildingID tiebreaker if the unit IDs are the same.
-
+                if (currentUnitId == minDistanceId) {
+                    if (units[currentUnitId].getBuildingId() < units[minDistanceId].getBuildingId()) {
+                        minDistanceId = currentUnitId;
+                    }
+                } else if (currentUnitId < minDistanceId) {
+                    minDistanceId = currentUnitId;
                 }
+            }
+        }
+        // When the closest unit is found, it is returned.
+        return units[minDistanceId];
+    }
+
+    @Override
+    // For each reported incident: assigns the best eligible unit, sets incident as DISPATCHED and unit as EN_ROUTE.
+    public void dispatch() {
+        for (int i = 1; i < nextIncident; i++) {
+            if (incidents[i].getStatus() == IncidentStatus.REPORTED) {
+                Unit optimal_unit = findOptimalUnit(incidents[i]);
+                // Calls helper method to find the optimal eligible unit based on ID order, distance and compatibility.
+                optimal_unit.setStatus(UnitStatus.EN_ROUTE);
+                optimal_unit.setIncidentId(i);
+                incidents[i].setStatus(IncidentStatus.DISPATCHED);
             }
         }
     }
@@ -332,42 +359,65 @@ public class CityRescueImpl implements CityRescue {
     @Override
     // Tick updates movements with manhattan rule, arrivals, on-scene, resolution.
     public void tick() {
-        // Iterates through all units, method updates movements and status.
-        for (int i = 1; i < nextUnit; i++) {
-            units[i].unit_tick();
-        }
-        dispatch();
         ticks ++;
+        dispatch();
+        // Iterates through all units in ascending ID order, updates movements and status.
+        for (int i = 1; i < nextUnit; i++) {
+            if (units[i].getStatus() == UnitStatus.EN_ROUTE) {
+                Incident incident = incidents[units[i].getIncidentId()];
+                units[i].makeMove(new int[] {incident.getX(), incident.getY()}, new int[] {units[i].getX(), units[i].getY()});
+
+                if (units[i].calculateManhattanDistance(new int[] {incident.getX(), incident.getY()},
+                        new int[] {units[i].getX(), units[i].getY()}) == 0) {
+                    units[i].setStatus(UnitStatus.AT_SCENE);
+                }
+                break;
+            }
+        }
+
+        // Iterates through all incidents in ascending ID order, decreases counter or resolves.
+        for (int i = 1; i < nextIncident; i++) {
+            Unit incidentUnit = units[incidents[i].getUnitId()];
+            if (incidentUnit.getStatus() == UnitStatus.AT_SCENE) {
+                incidentUnit.decrementTicksRemaining();
+
+                // Checks if ticks are zero to resolve incident.
+                if (incidentUnit.getTicksRemaining() == 0) {
+                    incidentUnit.setStatus(UnitStatus.IDLE);
+                    incidents[i].setStatus(IncidentStatus.RESOLVED);
+                }
+            }
+        }
     }
 
     @Override
     // Returns specifically formatted string as report of ticks, incidents and units.
     public String getStatus() {
-        String status_report = "";
-        status_report += String.format("TICK=%d\nSTATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d\n", ticks,
+        String statusReport = "";
+        statusReport += String.format("TICK=%d\nSTATIONS=%d UNITS=%d INCIDENTS=%d OBSTACLES=%d\n", ticks,
                 stations.length, units.length, incidents.length, map.countObstacles());
-        status_report += "INCIDENTS\n";
+        statusReport += "INCIDENTS\n";
         // Loop adds from class status method for all the incidents.
         for (int i = 1; i < nextIncident; i++) {
             // Try catch block handles exception from viewIncident method without compromising the overridden class.
             try {
-                status_report += viewIncident(incidents[i].getIncidentId());
+                statusReport += viewIncident(incidents[i].getIncidentId());
             } catch (IDNotRecognisedException e) {
                 e.printStackTrace();
             }
         }
-        status_report += "\nUNITS\n";
+        statusReport += "\nUNITS\n";
         // Loop adds from class status method for all the units.
         for (int i = 1; i < nextUnit; i++) {
             // Try catch block handles exception from viewUnit method without compromising the overridden class.
             try {
-                status_report += viewUnit(units[i].get_unit_id());
+                statusReport += viewUnit(units[i].getUnitId());
             } catch (IDNotRecognisedException e) {
                 e.printStackTrace();
             }
         }
-        return status_report;
+        return statusReport;
     }
 
-    public static Incident getIncident(int incident_id) {return incidents[incident_id];}
+    public static CityMap getCityMap() {return map;}
 }

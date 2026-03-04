@@ -2,35 +2,29 @@ package cityrescue;
 
 public class Station {
     private String name;
-    private int x_coordinate;
-    private int y_coordinate;
+    private int x;
+    private int y;
     public int capacity;
-    private int unit_count;
+    private int unitCount;
     private int stationId;
 
     final int CAPACITY = 10;
 
-    public Station(int stationId, String name_in, int x_in, int y_in) {
+    public Station(int stationId, String name, int x, int y) {
         this.stationId = stationId;
-        this.name = name_in;
-        this.x_coordinate = x_in;
-        this.y_coordinate = y_in;
-        // TODO: Add capacity to constructor or setter?
+        this.name = name;
+        this.x = x;
+        this.y = y;
         this.capacity = CAPACITY;
     }
 
-    public int get_station_id() {
-        return stationId;
-    }
+    public int getStationId() {return stationId;}
 
-    public int get_x_coordinate() {
-        return x_coordinate;
-    }
+    public int getX() {return x;}
 
-    public int get_y_coordinate() {
-        return y_coordinate;
-    }
+    public int getY() {return y;}
 
-    public int getUnit_count() {return unit_count;}
-    public void setUnit_count(int new_count) {unit_count = new_count;}
+    public int getUnitCount() {return unitCount;}
+
+    public void setUnitCount(int newCount) {unitCount = newCount;}
 }

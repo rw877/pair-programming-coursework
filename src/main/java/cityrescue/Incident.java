@@ -2,6 +2,7 @@ package cityrescue;
 
 import cityrescue.enums.IncidentStatus;
 import cityrescue.enums.IncidentType;
+import cityrescue.enums.UnitStatus;
 
 
 public class Incident {
@@ -24,18 +25,23 @@ public class Incident {
 
     }
 
+    // Getters and Setters for Incident encapsulation.
+    public int getIncidentId() {return incidentId;}
+
+    public int getUnitId() {return unitId;}
+
+    public IncidentStatus getStatus() {return status;}
+
     public void setStatus(IncidentStatus status_in) {status = status_in;}
 
-    // Getters for Incident.
-    public int getIncidentId() {return incidentId;}
-    public int getUnitId() {return unitId;}
-    public IncidentStatus getStatus() {return status;}
     public IncidentType getType() {return type;}
 
     public int getX() {return x;}
+
     public int getY() {return y;}
 
     public int getSeverity() {return severity;}
 
-    public void setSeverity(int severity_in) {severity = severity_in;}
+    public void setSeverity(int severityIn) {severity = severityIn;}
+
 }

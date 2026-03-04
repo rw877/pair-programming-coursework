@@ -28,13 +28,13 @@ public class CityMap {
         }
     }
     public int countObstacles() {
-        int obstacle_count = 0;
+        int obstacleCount = 0;
         for (int i = 0; i < obstacles.length; i++) {
             for (int j = 0; j < obstacles[i].length; j++) {
-                if (isBlocked(i, j)) obstacle_count++;
+                if (isBlocked(i, j)) obstacleCount++;
             }
         }
-        return obstacle_count;
+        return obstacleCount;
     }
 
 }

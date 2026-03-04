@@ -39,7 +39,8 @@ public class PublicTickLifecycleTest {
         int incident_id = cr.reportIncident(IncidentType.CRIME, 1, 1, 1);
 
         System.out.println(cr.getStatus());
-        // TODO: Implement dispatch to call for IDLE units.
         cr.tick();
+        System.out.println();
+        System.out.println(cr.getStatus());
     }
 }
