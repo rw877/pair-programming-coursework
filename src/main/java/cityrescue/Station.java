@@ -7,8 +7,8 @@ public class Station {
     private String name;
     private int x;
     private int y;
-    public int capacity;
-    private int unitCount;
+    public int capacity; // max number of units allowed
+    private int unitCount; // number of units in station
     private int stationId;
 
     final int CAPACITY = 10;
@@ -38,4 +38,8 @@ public class Station {
     public int getUnitCount() {return unitCount;}
 
     public void setUnitCount(int newCount) {unitCount = newCount;}
+
+    public int getCapacity() {return capacity;}
+
+    public void setCapacity(int new_capacity) {capacity = new_capacity;}
 }

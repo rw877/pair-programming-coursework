@@ -1,7 +1,8 @@
 package cityrescue;
 
 /**
- *
+ * Class has width, height and obstacles on the map, only keeps obstacles 2d array because they are not a class with
+ * coordinates stored. Also includes method to count obstacles, in addition to setters and getters.
  */
 public class CityMap {
     private int width;
@@ -9,7 +10,7 @@ public class CityMap {
     private boolean[][] obstacles;
 
     /**
-     *
+     * Constructor for CityMap class takes width and height only as dimensions.
      */
     public CityMap(int width, int height) {
         this.width = width;

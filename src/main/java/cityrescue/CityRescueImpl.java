@@ -117,15 +117,19 @@ public class CityRescueImpl implements CityRescue {
      */
     @Override
     public void removeStation(int stationId) throws IDNotRecognisedException, IllegalStateException {
-        if (stations[stationId].getUnitCount() != 0) throw new IllegalStateException("Station that has units cannot be removed.");
         if (stationId < 1 || stationId > MAX_STATIONS || stations[stationId] == null)
             throw new IDNotRecognisedException("ID is outside of range.");
+        if (stations[stationId].getUnitCount() != 0) throw new IllegalStateException("Station that has units cannot be removed.");
 
         boolean id_recognised = false;
         // Loops through array and shifts following elements to fill space of removing ID.
-        for (int i = 0; i < stations.length; i++) {
-            if (stations[i].getStationId() == stationId) {id_recognised = true;}
-            if (id_recognised) {stations[i - 1] = stations[i];}
+        for (int i = 1; i < stations.length; i++) {
+            if (stations[i] != null) {
+                if (stations[i].getStationId() == stationId) id_recognised = true;
+                if (id_recognised) {
+                    stations[i] = stations[i + 1];
+                }
+            }
         }
         if (!id_recognised) {
             throw new IDNotRecognisedException("ID was not found.");
@@ -609,7 +613,7 @@ public class CityRescueImpl implements CityRescue {
         for (int i = 1; i < nextUnit; i++) {
             // Try catch block handles exception from viewUnit method without compromising the overridden class.
             try {
-                statusReport += viewUnit(units[i].getUnitId());
+                if (units[i] != null) statusReport += viewUnit(units[i].getUnitId());
             } catch (IDNotRecognisedException e) {
                 e.printStackTrace();
             }
@@ -618,4 +622,8 @@ public class CityRescueImpl implements CityRescue {
     }
 
     public static CityMap getCityMap() {return map;}
+
+    public static Station[] getStations() {return stations;}
+
+    public static Unit[] getUnits() {return units;}
 }
